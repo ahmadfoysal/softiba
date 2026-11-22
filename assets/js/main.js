@@ -52,7 +52,48 @@
     reveals.forEach((el) => el.classList.add('is-in'));
   }
 
-  /* ---------- constellation: Softiba hub + product nodes ---------- */
+  /* ---------- project brief: opens email or WhatsApp with the form filled in ---------- */
+  const brief = document.getElementById('brief');
+  if (brief) {
+    const note = document.getElementById('briefNote');
+    const noteText = note ? note.textContent : '';
+    brief.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const via = (e.submitter && e.submitter.dataset.via) || 'email';
+      const data = new FormData(brief);
+      let ok = true;
+      ['name', 'contact', 'message'].forEach((key) => {
+        const input = brief.elements[key];
+        const bad = !String(data.get(key) || '').trim();
+        input.closest('.field').classList.toggle('is-bad', bad);
+        if (bad && ok) { input.focus(); ok = false; }
+      });
+      if (!ok) {
+        if (note) { note.textContent = 'Please fill in your name, how to reach you, and a few words about the project.'; note.classList.add('is-warn'); }
+        return;
+      }
+      if (note) { note.textContent = noteText; note.classList.remove('is-warn'); }
+      const types = data.getAll('type');
+      const body = [
+        `Name: ${data.get('name')}`,
+        `Contact: ${data.get('contact')}`,
+        `Looking for: ${types.length ? types.join(', ') : 'Not specified'}`,
+        '',
+        String(data.get('message')).trim(),
+      ].join('\n');
+      const subject = `New project enquiry from ${data.get('name')}`;
+      const url = via === 'whatsapp'
+        ? `https://wa.me/8801303705753?text=${encodeURIComponent(`${subject}\n\n${body}`)}`
+        : `mailto:info@softiba.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(url, via === 'whatsapp' ? '_blank' : '_self');
+    });
+    brief.addEventListener('input', (e) => {
+      const f = e.target.closest('.field');
+      if (f && String(e.target.value).trim()) f.classList.remove('is-bad');
+    });
+  }
+
+  /* ---------- constellation: client project hub + capability nodes ---------- */
   const svg = document.getElementById('constellation');
   const readout = document.getElementById('readout');
   if (!svg) return;
@@ -66,19 +107,20 @@
   };
 
   const HUB = { x: 260, y: 228 };
+  // the hub is the client's project; nodes are what we build around it
   const products = [
-    { id: 'RemoteMikrotik', sub: 'network · access', x: 122, y: 110, warm: false,
-      text: 'Reach any MikroTik router from anywhere — no public IP needed.' },
-    { id: 'Radtik', sub: 'network · billing', x: 400, y: 102, warm: false,
-      text: 'RADIUS, hotspot and PPPoE billing for MikroTik ISPs.' },
-    { id: 'WhatSwift', sub: 'messaging · api', x: 448, y: 262, warm: true,
-      text: 'WhatsApp messages, alerts and login codes from your own number.' },
-    { id: 'SwiftNotify', sub: 'messaging · wp', x: 380, y: 392, warm: true,
-      text: 'WooCommerce order updates, delivered on WhatsApp.' },
-    { id: 'HifzDesk', sub: 'ops · education', x: 132, y: 384, warm: false,
-      text: 'Sabaq, sabqi and manzil tracking for madrasas and hifz teachers.' },
-    { id: 'VoltBangla', sub: 'ops · business', x: 74, y: 246, warm: true,
-      text: 'Sales, stock and accounts — a business suite for Bangladesh.' },
+    { id: 'Web apps & SaaS', target: 'svc-web', sub: 'portals · dashboards', x: 122, y: 110, warm: false,
+      text: 'Customer portals, dashboards and SaaS platforms with roles, billing and an admin panel.' },
+    { id: 'Business systems', target: 'svc-biz', sub: 'erp · crm · stock', x: 400, y: 102, warm: false,
+      text: 'ERP, CRM, inventory and HR tools shaped around your exact workflow.' },
+    { id: 'Integrations', target: 'svc-api', sub: 'payments · apis', x: 448, y: 262, warm: true,
+      text: 'bKash, Nagad, SSLCommerz, couriers, SMS and any service with an API.' },
+    { id: 'WhatsApp', target: 'svc-wa', sub: 'alerts · otp · chat', x: 380, y: 392, warm: true,
+      text: 'Order updates, reminders, login codes and two-way chat on WhatsApp.' },
+    { id: 'ISP & network', target: 'svc-net', sub: 'mikrotik · radius', x: 132, y: 384, warm: false,
+      text: 'MikroTik automation, RADIUS and hotspot billing, remote access.' },
+    { id: 'Websites', target: 'svc-wp', sub: 'wordpress · woo', x: 74, y: 246, warm: true,
+      text: 'Company websites, WooCommerce stores and custom WordPress plugins.' },
   ];
 
   const defs = el('defs');
@@ -110,7 +152,7 @@
   el('circle', { class: 'hub-pulse', cx: HUB.x, cy: HUB.y, r: 34 });
   el('circle', { class: 'hub-ring', cx: HUB.x, cy: HUB.y, r: 30 });
   const hubLabel = el('text', { class: 'hub-label', x: HUB.x, y: HUB.y + 64, 'text-anchor': 'middle' });
-  hubLabel.textContent = 'softiba';
+  hubLabel.textContent = 'your project';
 
   // nodes
   const setActive = (p) => {
@@ -119,10 +161,10 @@
       q.node.classList.toggle('is-on', q === p);
     });
     if (!readout) return;
-    readout.querySelector('.panel__k').textContent = p ? p.id : 'hover a node';
+    readout.querySelector('.panel__k').textContent = p ? p.id : 'your project';
     readout.querySelector('.panel__v').textContent = p
       ? p.text
-      : 'Every Softiba product shares the same team, the same standards, and a lot of the same plumbing.';
+      : 'One team handles the whole build: design, code, hosting and support. Hover a node to see what each part covers.';
   };
 
   products.forEach((p) => {
@@ -143,8 +185,11 @@
     node.addEventListener('mouseleave', () => setActive(null));
     node.addEventListener('blur', () => setActive(null));
     const go = () => {
-      const row = [...document.querySelectorAll('.row__name')].find((n) => n.firstChild.textContent.trim() === p.id);
-      if (row) row.closest('.row').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      const card = document.getElementById(p.target);
+      if (!card) return;
+      card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      card.classList.add('is-on');
+      setTimeout(() => card.classList.remove('is-on'), 1800);
     };
     node.addEventListener('click', go);
     node.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });

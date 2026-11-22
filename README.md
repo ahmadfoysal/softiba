@@ -1,6 +1,6 @@
 # softiba.com
 
-Single-page landing site for **Softiba** — the studio behind RemoteMikrotik, Radtik, HifzDesk, WhatSwift, SwiftNotify and VoltBangla.
+Single-page landing site for **Softiba** — a custom software development company from Savar, Dhaka, and the team behind RemoteMikrotik, Radtik, WhatSwift, SwiftNotify and HifzDesk.
 
 Plain static HTML/CSS/JS. No build step: open `index.html` or upload the folder to any static host.
 
@@ -31,6 +31,10 @@ Type: **Schibsted Grotesk** (headings/body), **Newsreader Italic** (accents), **
 
 The logo is a redrawn, all-vector version of the original: a monoline wordmark where the "o" is the hub-and-nodes mark, the dot of the "i" is a node, and f/t share one crossbar.
 
-## Editing products
+## Page structure
 
-Each product is one `<a class="row">` in the `#products` section of `index.html`. The hero network diagram reads its list from the `products` array in `assets/js/main.js`.
+Hero → Services (`#services`) → Process (`#process`) → Own products (`#products`) → How systems connect → Why Softiba → Studio → Project brief (`#contact`).
+
+- **Services:** one `<article class="svc">` each in `index.html`. The hero network diagram reads the same six from the `products` array in `assets/js/main.js` (each node's `target` is the service card's id).
+- **Products:** one `<a class="row">` each in the `#products` section.
+- **Project brief form:** a static site has no backend, so the form opens the visitor's email app (to info@softiba.com) or WhatsApp (+880 1303-705753) with the brief already filled in. To collect submissions on a server instead, point the form at Formspree, a Laravel endpoint or similar.
