@@ -38,3 +38,10 @@ Hero → Services (`#services`) → Process (`#process`) → Own products (`#pro
 - **Services:** one `<article class="svc">` each in `index.html`. The hero network diagram reads the same six from the `products` array in `assets/js/main.js` (each node's `target` is the service card's id).
 - **Products:** one `<a class="row">` each in the `#products` section.
 - **Project brief form:** a static site has no backend, so the form opens the visitor's email app (to info@softiba.com) or WhatsApp (+880 1303-705753) with the brief already filled in. To collect submissions on a server instead, point the form at Formspree, a Laravel endpoint or similar.
+
+## SEO
+
+- `<title>`, meta description, canonical URL and Open Graph / Twitter tags in `<head>` (absolute URLs assume the site is served at `https://softiba.com/`).
+- JSON-LD structured data (Organization + ProfessionalService with address, phone, services and products) in `<head>`.
+- `robots.txt` and `sitemap.xml` at the root. Update `<lastmod>` in the sitemap when the page changes.
+- After going live: add the site to Google Search Console and submit `https://softiba.com/sitemap.xml`.

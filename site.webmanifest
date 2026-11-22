@@ -1,0 +1,12 @@
+{
+  "name": "Softiba",
+  "short_name": "Softiba",
+  "icons": [
+    { "src": "assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "theme_color": "#0D2463",
+  "background_color": "#F4F1EA",
+  "display": "standalone",
+  "start_url": "/"
+}
